@@ -1,0 +1,21 @@
+# Coverage
+coverage.out
+coverage.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Binaries (shouldn't exist for a library, but just in case)
+/bin/
+
+# Environment / secrets
+.env
+.env.local
