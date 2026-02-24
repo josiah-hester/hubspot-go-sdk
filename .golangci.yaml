@@ -1,0 +1,125 @@
+version: "2"
+
+run:
+  go: "1.22"
+  tests: true
+
+linters:
+  enable:
+    # Correctness
+    - govet
+    - staticcheck
+    - errcheck
+    - bodyclose
+    - nilerr
+    - reassign
+    - copyloopvar
+    - noctx
+
+    # Style / public API quality
+    - revive
+    - misspell
+    - godot
+
+    # Complexity
+    - cyclop
+    - funlen
+    - goconst
+
+    # Performance
+    - prealloc
+
+    # Error handling
+    - wrapcheck
+    - errorlint
+
+  disable:
+    - exhaustruct
+    - ireturn
+    - varnamelen
+    - wsl
+    - nlreturn
+    - mnd
+    - depguard
+    - testpackage
+    - gochecknoglobals
+
+  settings:
+    cyclop:
+      max-complexity: 18
+
+    funlen:
+      lines: 100
+      statements: 60
+
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+
+    revive:
+      rules:
+        # Enforce doc comments on all exported types, functions, methods
+        - name: exported
+          arguments:
+            - check-private-receivers
+            - disable-stuttering-check
+        # Flag bare returns in functions with named results
+        - name: bare-return
+        # Flag empty code blocks
+        - name: empty-block
+        # Flag unreachable code
+        - name: unreachable-code
+        # Flag unnecessary else after return/break/continue
+        - name: superfluous-else
+        # Flag context.Context not being first parameter
+        - name: context-as-argument
+        # Flag error not being last return value
+        - name: error-return
+        # Flag range over map when order matters (not our case usually, but good hygiene)
+        - name: range-val-address
+
+    errorlint:
+      errorf: true
+      errorf-multi: true
+      asserts: true
+      comparison: true
+
+    godot:
+      scope: declarations
+      capital: true
+
+    misspell:
+      locale: US
+
+  exclusions:
+    rules:
+      # Tests can be longer and more complex
+      - path: _test\.go
+        linters:
+          - funlen
+          - cyclop
+          - wrapcheck
+          - errcheck
+          - goconst
+
+      # Example programs don't need doc comments
+      - path: examples/
+        linters:
+          - revive
+
+      # Generated code gets a pass on style
+      - path: generated/
+        linters:
+          - revive
+          - godot
+          - funlen
+          - cyclop
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/josiah-hester/hubspot-go-sdk
