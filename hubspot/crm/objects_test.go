@@ -262,7 +262,7 @@ func TestObjectsService_Update(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	obj, err := crm.NewService(newTestClient(t, ts)).Contacts().Update(context.Background(), "123", &crm.UpdateInput{
+	obj, err := crm.NewService(newTestClient(t, ts)).Contacts().Update(context.Background(), "123", "id", &crm.UpdateInput{
 		Properties: map[string]string{"lastname": "Updated"},
 	})
 	if err != nil {
