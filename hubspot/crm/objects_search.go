@@ -45,19 +45,19 @@ const (
 // SearchRequest defines a CRM object search query.
 type SearchRequest struct {
 	// FilterGroups are ORed together. Within each group, filters are ANDed.
-	FilterGroups []FilterGroup `json:"filterGroups,omitempty"`
+	FilterGroups []FilterGroup `json:"filterGroups"`
 
 	// Sorts defines the sort order of results.
-	Sorts []Sort `json:"sorts,omitempty"`
+	Sorts []Sort `json:"sorts"`
 
 	// Properties is the list of property names to return.
-	Properties []string `json:"properties,omitempty"`
+	Properties []string `json:"properties"`
 
 	// Limit is the maximum number of results to return (max 100).
-	Limit int `json:"limit,omitempty"`
+	Limit int `json:"limit"`
 
 	// After is the paging cursor for fetching the next page of results.
-	After string `json:"after,omitempty"`
+	After string `json:"after"`
 }
 
 // FilterGroup contains filters that are ANDed together. Multiple filter
