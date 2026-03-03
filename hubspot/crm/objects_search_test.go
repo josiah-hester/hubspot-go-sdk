@@ -80,7 +80,7 @@ func TestObjectsService_Search_WithSort(t *testing.T) {
 		if len(req.Sorts) != 1 {
 			t.Fatalf("len(Sorts) = %d, want 1", len(req.Sorts))
 		}
-		if req.Sorts[0].PropertyName != "createdate" || req.Sorts[0].Direction != crm.SortDescending {
+		if req.Sorts[0] != "createdate" {
 			t.Errorf("sort = %+v, want createdate DESCENDING", req.Sorts[0])
 		}
 
@@ -90,7 +90,7 @@ func TestObjectsService_Search_WithSort(t *testing.T) {
 	defer ts.Close()
 
 	_, err := crm.NewService(newTestClient(t, ts)).Contacts().Search(context.Background(), &crm.SearchRequest{
-		Sorts: []crm.Sort{{PropertyName: "createdate", Direction: crm.SortDescending}},
+		Sorts: []string{"createdate"},
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -207,8 +207,8 @@ func TestSearchBuilder_WhereNotHasProperty(t *testing.T) {
 func TestSearchBuilder_SortSelectLimitAfter(t *testing.T) {
 	req := crm.NewSearch().
 		Where("email", crm.OpHasProperty, "").
-		SortBy("createdate", crm.SortDescending).
-		SortBy("email", crm.SortAscending).
+		SortBy("createdate").
+		SortBy("email").
 		Select("email", "firstname").
 		Limit(50).
 		After("cursor-123").
@@ -217,11 +217,8 @@ func TestSearchBuilder_SortSelectLimitAfter(t *testing.T) {
 	if len(req.Sorts) != 2 {
 		t.Fatalf("len(Sorts) = %d, want 2", len(req.Sorts))
 	}
-	if req.Sorts[0].PropertyName != "createdate" || req.Sorts[0].Direction != crm.SortDescending {
+	if req.Sorts[0] != "createdate" {
 		t.Errorf("sort[0] = %+v, want createdate DESCENDING", req.Sorts[0])
-	}
-	if req.Sorts[1].Direction != crm.SortAscending {
-		t.Errorf("sort[1].Direction = %q, want ASCENDING", req.Sorts[1].Direction)
 	}
 	if !reflect.DeepEqual(req.Properties, []string{"email", "firstname"}) {
 		t.Errorf("Properties = %v, want [email firstname]", req.Properties)
@@ -264,7 +261,7 @@ func TestSearchBuilder_ComplexQuery(t *testing.T) {
 		Where("firstname", crm.OpEQ, "Alice").
 		Or().
 		Where("email", crm.OpContainsToken, "test.com").
-		SortBy("createdate", crm.SortDescending).
+		SortBy("createdate").
 		Select("email", "firstname", "lastname").
 		Limit(20).
 		Build()

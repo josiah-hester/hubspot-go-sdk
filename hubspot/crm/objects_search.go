@@ -48,7 +48,7 @@ type SearchRequest struct {
 	FilterGroups []FilterGroup `json:"filterGroups"`
 
 	// Sorts defines the sort order of results.
-	Sorts []Sort `json:"sorts"`
+	Sorts []string `json:"sorts"`
 
 	// Properties is the list of property names to return.
 	Properties []string `json:"properties"`
@@ -116,7 +116,7 @@ const SortDescending = "DESCENDING"
 type SearchBuilder struct {
 	groups     []FilterGroup
 	current    []Filter
-	sorts      []Sort
+	sorts      []string
 	properties []string
 	limit      int
 	after      string
@@ -200,11 +200,8 @@ func (b *SearchBuilder) Or() *SearchBuilder {
 
 // SortBy adds a sort criterion. Multiple calls add multiple sort keys
 // in order of priority.
-func (b *SearchBuilder) SortBy(property, direction string) *SearchBuilder {
-	b.sorts = append(b.sorts, Sort{
-		PropertyName: property,
-		Direction:    direction,
-	})
+func (b *SearchBuilder) SortBy(property string) *SearchBuilder {
+	b.sorts = append(b.sorts, property)
 	return b
 }
 
