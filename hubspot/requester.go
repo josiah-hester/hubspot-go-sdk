@@ -106,12 +106,16 @@ func parseAPIError(statusCode int, body []byte, _ http.Header) error {
 	}
 
 	// Try to decode HubSpot's JSON error body.
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, apiErr); err != nil {
-			// If we can't parse the body, still return a usable error.
-			apiErr.Message = string(body)
+	/*
+		if len(body) > 0 {
+			if err := json.Unmarshal(body, apiErr); err != nil {
+				// If we can't parse the body, still return a usable error.
+				apiErr.Message = string(body)
+			}
 		}
-	}
+	*/
+
+	apiErr.Message = string(body)
 
 	// Ensure StatusCode is always set (JSON doesn't include it).
 	apiErr.StatusCode = statusCode
