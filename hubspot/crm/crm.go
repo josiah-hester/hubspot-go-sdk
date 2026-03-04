@@ -120,6 +120,14 @@ func (s *Service) Object(objectType string) *ObjectsService {
 	return newObjectsService(s.r, objectType)
 }
 
+// Schemas returns a [SchemasService] for managing custom object schemas.
+//
+//	schemas := crm.NewService(client).Schemas()
+//	resp, err := schemas.List(ctx, nil)
+func (s *Service) Schemas() *SchemasService {
+	return newSchemasService(s.r)
+}
+
 // Associations returns an [AssociationsService] for managing associations
 // between two CRM object types using the v4 Associations API.
 //
