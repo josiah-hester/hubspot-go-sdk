@@ -119,3 +119,12 @@ func (s *Service) Appointments() *ObjectsService {
 func (s *Service) Object(objectType string) *ObjectsService {
 	return newObjectsService(s.r, objectType)
 }
+
+// Associations returns an [AssociationsService] for managing associations
+// between two CRM object types using the v4 Associations API.
+//
+//	assoc := crm.NewService(client).Associations("contacts", "companies")
+//	result, err := assoc.Create(ctx, "contact-1", "company-1", types)
+func (s *Service) Associations(fromObjectType, toObjectType string) *AssociationsService {
+	return newAssociationsService(s.r, fromObjectType, toObjectType)
+}

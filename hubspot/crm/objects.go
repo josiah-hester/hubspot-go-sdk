@@ -3,6 +3,7 @@ package crm
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/josiah-hester/hubspot-go-sdk/hubspot"
 )
@@ -107,7 +108,7 @@ func (s *ObjectsService) Update(ctx context.Context, id string, idProperty strin
 		Body:   input,
 	}
 	if idProperty != "" {
-		req.Query.Set("idProperty", idProperty)
+		req.Query = url.Values{"idProperty": {idProperty}}
 	}
 	if err := s.r.Do(ctx, req, obj); err != nil {
 		return nil, fmt.Errorf("hubspot: update object: %w", err)
