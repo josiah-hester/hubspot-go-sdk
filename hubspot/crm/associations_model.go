@@ -91,6 +91,24 @@ type AssociationBatchReadResponse struct {
 	CompletedAt string                       `json:"completedAt"`
 }
 
+// --- Default association types ---
+
+// DefaultAssociationResult is a single result from a create-default operation.
+type DefaultAssociationResult struct {
+	From            AssociationObjectID  `json:"from"`
+	To              AssociationObjectID  `json:"to"`
+	AssociationSpec AssociationTypeInput `json:"associationSpec"`
+}
+
+// DefaultAssociationResponse is the response from creating default associations
+// (both basic and batch endpoints share this response shape).
+type DefaultAssociationResponse struct {
+	Status      string                     `json:"status"`
+	Results     []DefaultAssociationResult `json:"results"`
+	StartedAt   string                     `json:"startedAt"`
+	CompletedAt string                     `json:"completedAt"`
+}
+
 // --- Schema types ---
 
 // AssociationLabelDefinition describes a custom association label/definition.

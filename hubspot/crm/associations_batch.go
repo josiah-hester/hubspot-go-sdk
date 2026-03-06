@@ -85,6 +85,26 @@ func (b *AssociationsBatchService) Archive(ctx context.Context, inputs []Associa
 	return nil
 }
 
+// CreateDefault creates default (unlabeled) associations in bulk.
+//
+//	resp, err := batch.CreateDefault(ctx, []crm.AssociationBatchArchiveInput{
+//	    {
+//	        From: crm.AssociationObjectID{ID: "contact-1"},
+//	        To:   crm.AssociationObjectID{ID: "company-1"},
+//	    },
+//	})
+func (b *AssociationsBatchService) CreateDefault(ctx context.Context, inputs []AssociationBatchArchiveInput) (*DefaultAssociationResponse, error) {
+	resp := &DefaultAssociationResponse{}
+	if err := b.r.Do(ctx, &hubspot.Request{
+		Method: "POST",
+		Path:   fmt.Sprintf("%s/batch/associate/default", b.basePath()),
+		Body:   map[string]any{"inputs": inputs},
+	}, resp); err != nil {
+		return nil, fmt.Errorf("hubspot: batch create default associations: %w", err)
+	}
+	return resp, nil
+}
+
 func (b *AssociationsBatchService) basePath() string {
 	return fmt.Sprintf("/crm/v4/associations/%s/%s", b.fromObjectType, b.toObjectType)
 }

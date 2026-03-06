@@ -134,6 +134,73 @@ func TestAssociationsBatchService_Read(t *testing.T) {
 	}
 }
 
+func TestAssociationsBatchService_CreateDefault(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			t.Errorf("method = %s, want POST", r.Method)
+		}
+		if want := "/crm/v4/associations/contacts/companies/batch/associate/default"; r.URL.Path != want {
+			t.Errorf("path = %s, want %s", r.URL.Path, want)
+		}
+
+		body, _ := io.ReadAll(r.Body)
+		var payload struct {
+			Inputs []crm.AssociationBatchArchiveInput `json:"inputs"`
+		}
+		json.Unmarshal(body, &payload)
+		if len(payload.Inputs) != 2 {
+			t.Errorf("len(inputs) = %d, want 2", len(payload.Inputs))
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"status": "COMPLETE",
+			"results": []map[string]any{
+				{
+					"from":            map[string]string{"id": "c1"},
+					"to":              map[string]string{"id": "co1"},
+					"associationSpec": map[string]any{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 1},
+				},
+				{
+					"from":            map[string]string{"id": "c2"},
+					"to":              map[string]string{"id": "co2"},
+					"associationSpec": map[string]any{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 1},
+				},
+			},
+			"startedAt":   "2024-01-01T00:00:00.000Z",
+			"completedAt": "2024-01-01T00:00:01.000Z",
+		})
+	}))
+	defer ts.Close()
+
+	batch := crm.NewService(newTestClient(t, ts)).Associations("contacts", "companies").Batch()
+	resp, err := batch.CreateDefault(context.Background(), []crm.AssociationBatchArchiveInput{
+		{
+			From: crm.AssociationObjectID{ID: "c1"},
+			To:   crm.AssociationObjectID{ID: "co1"},
+		},
+		{
+			From: crm.AssociationObjectID{ID: "c2"},
+			To:   crm.AssociationObjectID{ID: "co2"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Status != "COMPLETE" {
+		t.Errorf("Status = %q, want COMPLETE", resp.Status)
+	}
+	if len(resp.Results) != 2 {
+		t.Fatalf("len(Results) = %d, want 2", len(resp.Results))
+	}
+	if resp.Results[0].From.ID != "c1" {
+		t.Errorf("From.ID = %q, want c1", resp.Results[0].From.ID)
+	}
+	if resp.Results[1].To.ID != "co2" {
+		t.Errorf("To.ID = %q, want co2", resp.Results[1].To.ID)
+	}
+}
+
 func TestAssociationsBatchService_Archive(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {

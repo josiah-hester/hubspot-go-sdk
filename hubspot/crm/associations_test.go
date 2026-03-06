@@ -140,6 +140,62 @@ func TestAssociationsService_Archive(t *testing.T) {
 	}
 }
 
+func TestAssociationsService_CreateDefault(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "PUT" {
+			t.Errorf("method = %s, want PUT", r.Method)
+		}
+		if want := "/crm/v4/objects/contacts/contact-1/associations/default/companies/company-1"; r.URL.Path != want {
+			t.Errorf("path = %s, want %s", r.URL.Path, want)
+		}
+		if r.Body != nil {
+			body, _ := io.ReadAll(r.Body)
+			if len(body) > 0 {
+				t.Errorf("expected no request body, got %s", body)
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"status": "COMPLETE",
+			"results": []map[string]any{
+				{
+					"from":            map[string]string{"id": "contact-1"},
+					"to":              map[string]string{"id": "company-1"},
+					"associationSpec": map[string]any{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 1},
+				},
+			},
+			"startedAt":   "2024-01-01T00:00:00.000Z",
+			"completedAt": "2024-01-01T00:00:01.000Z",
+		})
+	}))
+	defer ts.Close()
+
+	assoc := crm.NewService(newTestClient(t, ts)).Associations("contacts", "companies")
+	resp, err := assoc.CreateDefault(context.Background(), "contact-1", "company-1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Status != "COMPLETE" {
+		t.Errorf("Status = %q, want COMPLETE", resp.Status)
+	}
+	if len(resp.Results) != 1 {
+		t.Fatalf("len(Results) = %d, want 1", len(resp.Results))
+	}
+	if resp.Results[0].From.ID != "contact-1" {
+		t.Errorf("From.ID = %q, want contact-1", resp.Results[0].From.ID)
+	}
+	if resp.Results[0].To.ID != "company-1" {
+		t.Errorf("To.ID = %q, want company-1", resp.Results[0].To.ID)
+	}
+	if resp.Results[0].AssociationSpec.AssociationCategory != crm.AssociationCategoryHubSpotDefined {
+		t.Errorf("AssociationCategory = %q, want %q", resp.Results[0].AssociationSpec.AssociationCategory, crm.AssociationCategoryHubSpotDefined)
+	}
+	if resp.Results[0].AssociationSpec.AssociationTypeID != 1 {
+		t.Errorf("AssociationTypeID = %d, want 1", resp.Results[0].AssociationSpec.AssociationTypeID)
+	}
+}
+
 func TestAssociationsService_CustomObjectTypes(t *testing.T) {
 	var gotPath string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

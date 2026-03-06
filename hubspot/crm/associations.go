@@ -74,6 +74,21 @@ func (s *AssociationsService) Archive(ctx context.Context, fromObjectID, toObjec
 	return nil
 }
 
+// CreateDefault creates the default (unlabeled) association between two objects.
+// This is the simplest way to associate records — no association type IDs needed.
+//
+//	resp, err := assoc.CreateDefault(ctx, "contact-1", "company-1")
+func (s *AssociationsService) CreateDefault(ctx context.Context, fromObjectID, toObjectID string) (*DefaultAssociationResponse, error) {
+	resp := &DefaultAssociationResponse{}
+	if err := s.r.Do(ctx, &hubspot.Request{
+		Method: "PUT",
+		Path:   fmt.Sprintf("%s/%s/associations/default/%s/%s", s.basePath(), fromObjectID, s.toObjectType, toObjectID),
+	}, resp); err != nil {
+		return nil, fmt.Errorf("hubspot: create default association: %w", err)
+	}
+	return resp, nil
+}
+
 // Batch returns an [AssociationsBatchService] for bulk association operations.
 func (s *AssociationsService) Batch() *AssociationsBatchService {
 	return newAssociationsBatchService(s.r, s.fromObjectType, s.toObjectType)
