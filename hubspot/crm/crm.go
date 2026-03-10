@@ -120,6 +120,15 @@ func (s *Service) Object(objectType string) *ObjectsService {
 	return newObjectsService(s.r, objectType)
 }
 
+// Properties returns a [PropertiesService] for managing property definitions
+// on the given object type.
+//
+//	props := crm.NewService(client).Properties("contacts")
+//	resp, err := props.List(ctx, nil)
+func (s *Service) Properties(objectType string) *PropertiesService {
+	return newPropertiesService(s.r, objectType)
+}
+
 // Schemas returns a [SchemasService] for managing custom object schemas.
 //
 //	schemas := crm.NewService(client).Schemas()
