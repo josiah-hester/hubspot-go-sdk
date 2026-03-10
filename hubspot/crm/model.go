@@ -110,6 +110,11 @@ type GetOptions struct {
 
 	// Archived includes archived (soft-deleted) objects when true.
 	Archived bool
+
+	// IdProperty is the name of a property whose value identifies the object
+	// instead of the standard hs_object_id. For example, set IdProperty to
+	// "email" to look up a contact by email address.
+	IdProperty string
 }
 
 func (o *GetOptions) toQuery() url.Values {
@@ -130,6 +135,9 @@ func (o *GetOptions) toQuery() url.Values {
 	}
 	if o.Archived {
 		q.Set("archived", "true")
+	}
+	if o.IdProperty != "" {
+		q.Set("idProperty", o.IdProperty)
 	}
 
 	return q
